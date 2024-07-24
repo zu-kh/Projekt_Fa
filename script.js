@@ -3,8 +3,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const itemNumberInput = document.getElementById('itemNumber');
     const itemNameInput = document.getElementById('itemName');
     const itemList = document.getElementById('itemList');
-    const apiKey = $2a$10$ZDvaG5KQD3SlE751pCmAIOEaLgwNVgVBixBwX6tl/A3evXQaZ1iE6 ; // Replace with your jsonbin.io API key
-    const binId = 66a0e037acd3cb34a86a9857 ; // Replace with your bin ID
+    const apiKey = '$2a$10$ZDvaG5KQD3SlE751pCmAIOEaLgwNVgVBixBwX6tl/A3evXQaZ1iE6'; // Replace with your jsonbin.io API key
+    const binId = '66a0e037acd3cb34a86a9857'; // Replace with your bin ID
 
     // Function to create a new item element
     function createItemElement(number, name, id) {
