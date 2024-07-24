@@ -1,0 +1,37 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+}
+
+h1 {
+    text-align: center;
+}
+
+form {
+    margin-bottom: 20px;
+}
+
+input, button {
+    margin-right: 10px;
+}
+
+#itemList {
+    margin-top: 20px;
+}
+
+.item {
+    padding: 10px;
+    border-bottom: 1px solid #ccc;
+}
+
+.item:last-child {
+    border-bottom: none;
+}
+
+button.delete-btn {
+    background-color: red;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    cursor: pointer;
+}
