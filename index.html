@@ -1,6 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic List Example</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .item { margin-bottom: 5px; }
+        .separator { border-top: 1px solid #ccc; margin: 10px 0; }
+        .choice-btn { margin-left: 5px; }
+        .selected { background-color: lightblue; }
+        .button-container { margin-bottom: 10px; }
+    </style>
+</head>
+<body>
+    <h2>Flafel Time</h2>
+    <div id="predefinedList">
+        <!-- Predefined items will be displayed here -->
+    </div>
+    <button onclick="resetTotals()">Reset Totals</button>
+    <div class="separator"></div>
+    <div id="itemList">
+        <!-- List items will be added dynamically here -->
+    </div>
 <script>
-    const apiKey = '$2a$10$zW3TUHT3ml29eE3CzCfhR..g5UDEkmJiTJAI8mbruYVq.t6L/T0ja'; // Replace with your jsonbin.io API key
-    const binId = '66a0e037acd3cb34a86a9857'; // Replace with your jsonbin.io bin ID
+    const apiKey = 'YOUR_JSONBIN_API_KEY'; // Replace with your jsonbin.io API key
+    const binId = 'YOUR_JSONBIN_BIN_ID'; // Replace with your jsonbin.io bin ID
 
     const predefinedItems = [
         { "name": "فلافل" },
@@ -153,3 +178,5 @@
         }
     }
 </script>
+</body>
+</html>
