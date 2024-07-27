@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Item List with Numbers</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        .item {
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+        }
+        .item span {
+            flex: 1;
+        }
+        .item input {
+            width: 50px;
+            margin-right: 10px;
+        }
+        #selectedItems {
+            margin-top: 20px;
+            border-top: 2px solid #000;
+            padding-top: 10px;
+        }
+        #itemList, #selectedItems {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>Item List</h1>
+    <div id="itemList">
+        <div class="item">
+            <span>Item 1</span>
+            <input type="number" id="item1" onkeydown="checkEnter(event, 'Item 1')">
+            <button onclick="addItem('Item 1', document.getElementById('item1').value, document.getElementById('item1'))">Add</button>
+        </div>
+        <div class="item">
+            <span>Item 2</span>
+            <input type="number" id="item2" onkeydown="checkEnter(event, 'Item 2')">
+            <button onclick="addItem('Item 2', document.getElementById('item2').value, document.getElementById('item2'))">Add</button>
+        </div>
+        <div class="item">
+            <span>Item 3</span>
+            <input type="number" id="item3" onkeydown="checkEnter(event, 'Item 3')">
+            <button onclick="addItem('Item 3', document.getElementById('item3').value, document.getElementById('item3'))">Add</button>
+        </div>
+        <div class="item">
+            <span>Item 4</span>
+            <input type="number" id="item4" onkeydown="checkEnter(event, 'Item 4')">
+            <button onclick="addItem('Item 4', document.getElementById('item4').value, document.getElementById('item4'))">Add</button>
+        </div>
+        <div class="item">
+            <span>Item 5</span>
+            <input type="number" id="item5" onkeydown="checkEnter(event, 'Item 5')">
+            <button onclick="addItem('Item 5', document.getElementById('item5').value, document.getElementById('item5'))">Add</button>
+        </div>
+        <div class="item">
+            <span>Item 6</span>
+            <input type="number" id="item6" onkeydown="checkEnter(event, 'Item 6')">
+            <button onclick="addItem('Item 6', document.getElementById('item6').value, document.getElementById('item6'))">Add</button>
+        </div>
+        <div class="item">
+            <span>Item 7</span>
+            <input type="number" id="item7" onkeydown="checkEnter(event, 'Item 7')">
+            <button onclick="addItem('Item 7', document.getElementById('item7').value, document.getElementById('item7'))">Add</button>
+        </div>
+        <div class="item">
+            <span>Item 8</span>
+            <input type="number" id="item8" onkeydown="checkEnter(event, 'Item 8')">
+            <button onclick="addItem('Item 8', document.getElementById('item8').value, document.getElementById('item8'))">Add</button>
+        </div>
+    </div>
+
+    <div id="selectedItems"></div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            loadItems();
+        });
+
+        function addItem(item, number, inputElement) {
+            if (number) {
+                const selectedItems = document.getElementById('selectedItems');
+                const newItem = document.createElement('div');
+                newItem.textContent = `${item}: ${number}`;
+                selectedItems.appendChild(newItem);
+                inputElement.value = '';  // Clear the input box
+
+                saveItem(item, number);
+            } else {
+                alert('Please enter a number.');
+            }
+        }
+
+        function checkEnter(event, item) {
+            if (event.key === 'Enter') {
+                const inputElement = event.target;
+                addItem(item, inputElement.value, inputElement);
+            }
+        }
+
+        function saveItem(item, number) {
+            const savedItems = JSON.parse(localStorage.getItem('selectedItems')) || [];
+            savedItems.push({ item, number });
+            localStorage.setItem('selectedItems', JSON.stringify(savedItems));
+        }
+
+        function loadItems() {
+            const savedItems = JSON.parse(localStorage.getItem('selectedItems')) || [];
+            const selectedItems = document.getElementById('selectedItems');
+            savedItems.forEach(savedItem => {
+                const newItem = document.createElement('div');
+                newItem.textContent = `${savedItem.item}: ${savedItem.number}`;
+                selectedItems.appendChild(newItem);
+            });
+        }
+    </script>
+</body>
+</html>
