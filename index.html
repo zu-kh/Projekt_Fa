@@ -32,6 +32,23 @@
             max-width: 600px;
             margin: 0 auto;
         }
+        .selected-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 10px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .delete-btn {
+            padding: 5px 10px;
+            background-color: red;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 4px;
+        }
     </style>
 </head>
 <body>
@@ -81,20 +98,44 @@
 
     <div id="selectedItems"></div>
 
+    <!-- Add Backendless SDK -->
+    <script src="https://api.backendless.com/sdk/js/latest/backendless.min.js"></script>
+
     <script>
         document.addEventListener("DOMContentLoaded", () => {
-            loadItems();
+            // Initialize Backendless
+            try {
+                Backendless.initApp('9EB6F76C-108A-46DD-B9F0-2604D235E6AD', 'CF8D5B23-C51C-4200-B22B-8BBBFCB6E0A3');
+                console.log("Backendless initialized successfully");
+                loadItems();
+            } catch (error) {
+                console.error("Error initializing Backendless:", error);
+            }
         });
 
-        function addItem(item, number, inputElement) {
+        async function addItem(item, number, inputElement) {
             if (number) {
                 const selectedItems = document.getElementById('selectedItems');
                 const newItem = document.createElement('div');
-                newItem.textContent = `${item}: ${number}`;
+                newItem.classList.add('selected-item');
+                newItem.innerHTML = `<span>${item}: ${number}</span>`;
+
+                // Create delete button
+                const deleteButton = document.createElement('button');
+                deleteButton.textContent = 'Delete';
+                deleteButton.classList.add('delete-btn');
+                deleteButton.onclick = () => deleteItem(newItem, item, number);
+
+                newItem.appendChild(deleteButton);
                 selectedItems.appendChild(newItem);
                 inputElement.value = '';  // Clear the input box
 
-                saveItem(item, number);
+                try {
+                    const result = await Backendless.Data.of('Items').save({ item: item, number: number });
+                    console.log("Item saved:", result);
+                } catch (error) {
+                    console.error('Error saving item:', error);
+                }
             } else {
                 alert('Please enter a number.');
             }
@@ -107,20 +148,46 @@
             }
         }
 
-        function saveItem(item, number) {
-            const savedItems = JSON.parse(localStorage.getItem('selectedItems')) || [];
-            savedItems.push({ item, number });
-            localStorage.setItem('selectedItems', JSON.stringify(savedItems));
+        async function loadItems() {
+            try {
+                const savedItems = await Backendless.Data.of('Items').find();
+                console.log("Items loaded:", savedItems);
+
+                const selectedItems = document.getElementById('selectedItems');
+                savedItems.forEach(savedItem => {
+                    const newItem = document.createElement('div');
+                    newItem.classList.add('selected-item');
+                    newItem.innerHTML = `<span>${savedItem.item}: ${savedItem.number}</span>`;
+
+                    // Create delete button
+                    const deleteButton = document.createElement('button');
+                    deleteButton.textContent = 'Delete';
+                    deleteButton.classList.add('delete-btn');
+                    deleteButton.onclick = () => deleteItem(newItem, savedItem.item, savedItem.number);
+
+                    newItem.appendChild(deleteButton);
+                    selectedItems.appendChild(newItem);
+                });
+            } catch (error) {
+                console.error('Error loading items:', error);
+            }
         }
 
-        function loadItems() {
-            const savedItems = JSON.parse(localStorage.getItem('selectedItems')) || [];
-            const selectedItems = document.getElementById('selectedItems');
-            savedItems.forEach(savedItem => {
-                const newItem = document.createElement('div');
-                newItem.textContent = `${savedItem.item}: ${savedItem.number}`;
-                selectedItems.appendChild(newItem);
-            });
+        async function deleteItem(element, item, number) {
+            element.remove();  // Remove item from the DOM
+
+            try {
+                const queryBuilder = Backendless.DataQueryBuilder.create().setWhereClause(`item = '${item}' AND number = ${number}`);
+                const itemsToDelete = await Backendless.Data.of('Items').find(queryBuilder);
+                if (itemsToDelete.length > 0) {
+                    await Backendless.Data.of('Items').remove(itemsToDelete[0]);
+                    console.log('Item deleted:', itemsToDelete[0]);
+                } else {
+                    console.log('No matching item found to delete');
+                }
+            } catch (error) {
+                console.error('Error deleting item:', error);
+            }
         }
     </script>
 </body>
