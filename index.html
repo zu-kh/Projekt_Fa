@@ -201,7 +201,9 @@
             const children = selectedItems.children;
             for (let i = 0; i < children.length; i++) {
                 const child = children[i];
+                console.log(`Checking child: ${child.innerText}`);
                 if (child.innerText.includes(`${item}: ${number}`)) {
+                    console.log(`Removing child: ${child.innerText}`);
                     child.remove();
                     break;
                 }
