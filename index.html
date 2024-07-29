@@ -84,8 +84,8 @@
         async function addItem(item, number, inputElement) {
             if (number) {
                 try {
-                    const result = await Backendless.Data.of('Items').save({ item: item, number: number });
-                    console.log("Item saved:", result);
+                    await Backendless.Data.of('Items').save({ item: item, number: number });
+                    console.log("Item saved:", item, number);
                     inputElement.value = '';  // Clear the input box after adding
                 } catch (error) {
                     console.error('Error saving item:', error);
@@ -110,36 +110,33 @@
                 const selectedItems = document.getElementById('selectedItems');
                 selectedItems.innerHTML = ''; // Clear current items before loading
                 savedItems.forEach(savedItem => {
-                    addItemToDOM(savedItem.item, savedItem.number);
+                    addItemToDOM(savedItem.objectId, savedItem.item, savedItem.number);
                 });
             } catch (error) {
                 console.error('Error loading items:', error);
             }
         }
 
-        function addItemToDOM(item, number) {
+        function addItemToDOM(id, item, number) {
             const selectedItems = document.getElementById('selectedItems');
             const newItem = document.createElement('div');
             newItem.classList.add('selected-item');
-            newItem.dataset.item = item;
-            newItem.dataset.number = number;
+            newItem.dataset.id = id; // Store Backendless objectId
             newItem.innerHTML = `<span>${item}: ${number}</span>`;
 
             // Create delete button
             const deleteButton = document.createElement('button');
             deleteButton.textContent = 'Delete';
             deleteButton.classList.add('delete-btn');
-            deleteButton.onclick = () => deleteItem(newItem);
+            deleteButton.onclick = () => deleteItem(id, newItem);
 
             newItem.appendChild(deleteButton);
             selectedItems.appendChild(newItem);
         }
 
-        async function deleteItem(element) {
-            const item = element.dataset.item;
-            const number = element.dataset.number;
+        async function deleteItem(id, element) {
             try {
-                const queryBuilder = Backendless.DataQueryBuilder.create().setWhereClause(`item = '${item}' AND number = ${number}`);
+                const queryBuilder = Backendless.DataQueryBuilder.create().setWhereClause(`objectId = '${id}'`);
                 const itemsToDelete = await Backendless.Data.of('Items').find(queryBuilder);
                 if (itemsToDelete.length > 0) {
                     await Backendless.Data.of('Items').remove(itemsToDelete[0]);
@@ -158,21 +155,21 @@
 
             rtHandlers.addCreateListener(newItem => {
                 console.log('Item created:', newItem);
-                addItemToDOM(newItem.item, newItem.number);
+                addItemToDOM(newItem.objectId, newItem.item, newItem.number);
             });
 
             rtHandlers.addDeleteListener(deletedItem => {
                 console.log('Item deleted:', deletedItem);
-                removeItemFromDOM(deletedItem.item, deletedItem.number);
+                removeItemFromDOM(deletedItem.objectId);
             });
         }
 
-        function removeItemFromDOM(item, number) {
+        function removeItemFromDOM(id) {
             const selectedItems = document.getElementById('selectedItems');
             const children = selectedItems.children;
             for (let i = 0; i < children.length; i++) {
                 const child = children[i];
-                if (child.dataset.item === item && child.dataset.number === number.toString()) {
+                if (child.dataset.id === id) {
                     console.log(`Removing child: ${child.innerText}`);
                     child.remove();
                     break;
