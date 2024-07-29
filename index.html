@@ -108,6 +108,7 @@
                 Backendless.initApp('9EB6F76C-108A-46DD-B9F0-2604D235E6AD', 'CF8D5B23-C51C-4200-B22B-8BBBFCB6E0A3');
                 console.log("Backendless initialized successfully");
                 loadItems();
+                subscribeToRealTimeUpdates();
             } catch (error) {
                 console.error("Error initializing Backendless:", error);
             }
@@ -115,21 +116,6 @@
 
         async function addItem(item, number, inputElement) {
             if (number) {
-                const selectedItems = document.getElementById('selectedItems');
-                const newItem = document.createElement('div');
-                newItem.classList.add('selected-item');
-                newItem.innerHTML = `<span>${item}: ${number}</span>`;
-
-                // Create delete button
-                const deleteButton = document.createElement('button');
-                deleteButton.textContent = 'Delete';
-                deleteButton.classList.add('delete-btn');
-                deleteButton.onclick = () => deleteItem(newItem, item, number);
-
-                newItem.appendChild(deleteButton);
-                selectedItems.appendChild(newItem);
-                inputElement.value = '';  // Clear the input box
-
                 try {
                     const result = await Backendless.Data.of('Items').save({ item: item, number: number });
                     console.log("Item saved:", result);
@@ -145,6 +131,7 @@
             if (event.key === 'Enter') {
                 const inputElement = event.target;
                 addItem(item, inputElement.value, inputElement);
+                inputElement.value = '';  // Clear the input box after adding
             }
         }
 
@@ -154,39 +141,74 @@
                 console.log("Items loaded:", savedItems);
 
                 const selectedItems = document.getElementById('selectedItems');
+                selectedItems.innerHTML = ''; // Clear current items before loading
                 savedItems.forEach(savedItem => {
-                    const newItem = document.createElement('div');
-                    newItem.classList.add('selected-item');
-                    newItem.innerHTML = `<span>${savedItem.item}: ${savedItem.number}</span>`;
-
-                    // Create delete button
-                    const deleteButton = document.createElement('button');
-                    deleteButton.textContent = 'Delete';
-                    deleteButton.classList.add('delete-btn');
-                    deleteButton.onclick = () => deleteItem(newItem, savedItem.item, savedItem.number);
-
-                    newItem.appendChild(deleteButton);
-                    selectedItems.appendChild(newItem);
+                    addItemToDOM(savedItem.item, savedItem.number);
                 });
             } catch (error) {
                 console.error('Error loading items:', error);
             }
         }
 
-        async function deleteItem(element, item, number) {
-            element.remove();  // Remove item from the DOM
+        function addItemToDOM(item, number) {
+            const selectedItems = document.getElementById('selectedItems');
+            const newItem = document.createElement('div');
+            newItem.classList.add('selected-item');
+            newItem.innerHTML = `<span>${item}: ${number}</span>`;
 
+            // Create delete button
+            const deleteButton = document.createElement('button');
+            deleteButton.textContent = 'Delete';
+            deleteButton.classList.add('delete-btn');
+            deleteButton.onclick = () => deleteItem(newItem, item, number);
+
+            newItem.appendChild(deleteButton);
+            selectedItems.appendChild(newItem);
+        }
+
+        async function deleteItem(element, item, number) {
             try {
                 const queryBuilder = Backendless.DataQueryBuilder.create().setWhereClause(`item = '${item}' AND number = ${number}`);
                 const itemsToDelete = await Backendless.Data.of('Items').find(queryBuilder);
                 if (itemsToDelete.length > 0) {
                     await Backendless.Data.of('Items').remove(itemsToDelete[0]);
                     console.log('Item deleted:', itemsToDelete[0]);
+                    element.remove();  // Remove item from the DOM
                 } else {
                     console.log('No matching item found to delete');
                 }
             } catch (error) {
                 console.error('Error deleting item:', error);
+            }
+        }
+
+        function subscribeToRealTimeUpdates() {
+            const rtHandlers = Backendless.Data.of('Items').rt();
+
+            rtHandlers.addCreateListener((
+        function subscribeToRealTimeUpdates() {
+            const rtHandlers = Backendless.Data.of('Items').rt();
+
+            rtHandlers.addCreateListener(newItem => {
+                console.log('Item created:', newItem);
+                addItemToDOM(newItem.item, newItem.number);
+            });
+
+            rtHandlers.addDeleteListener(deletedItem => {
+                console.log('Item deleted:', deletedItem);
+                removeItemFromDOM(deletedItem.item, deletedItem.number);
+            });
+        }
+
+        function removeItemFromDOM(item, number) {
+            const selectedItems = document.getElementById('selectedItems');
+            const children = selectedItems.children;
+            for (let i = 0; i < children.length; i++) {
+                const child = children[i];
+                if (child.innerText.includes(`${item}: ${number}`)) {
+                    child.remove();
+                    break;
+                }
             }
         }
     </script>
