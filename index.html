@@ -119,6 +119,7 @@
                 try {
                     const result = await Backendless.Data.of('Items').save({ item: item, number: number });
                     console.log("Item saved:", result);
+                    inputElement.value = '';  // Clear the input box after adding
                 } catch (error) {
                     console.error('Error saving item:', error);
                 }
@@ -131,7 +132,6 @@
             if (event.key === 'Enter') {
                 const inputElement = event.target;
                 addItem(item, inputElement.value, inputElement);
-                inputElement.value = '';  // Clear the input box after adding
             }
         }
 
@@ -182,10 +182,6 @@
             }
         }
 
-        function subscribeToRealTimeUpdates() {
-            const rtHandlers = Backendless.Data.of('Items').rt();
-
-            rtHandlers.addCreateListener((
         function subscribeToRealTimeUpdates() {
             const rtHandlers = Backendless.Data.of('Items').rt();
 
